@@ -12,6 +12,7 @@ Approach-3: One-Shot ChatGPT (Final & Best Approach)
 
 This repository contains code to extract contract data, generate CAD outputs in JSON/DOCX/PDF, run compliance checks, detect contractual conflicts, and support contract-based Q&A.
 
+
 📁 Repository Structure
 ├── app/                        # Streamlit app for UI
 ├── cad_generation/             # CAD JSON, DOCX, PDF generators
@@ -22,6 +23,8 @@ This repository contains code to extract contract data, generate CAD outputs in 
 ├── utils/                      # Helper functions
 ├── generated_outputs/          # Sample outputs (JSON/DOCX/PDF)
 └── README.md                   # This file
+
+
 
 Project Goals
 
