@@ -1,0 +1,12 @@
+venv/
+venv/*
+__pycache__/
+*.pyc
+.DS_Store
+.env
+.idea/
+.vscode/
+.streamlit/secrets.toml
+venv/chroma_store/
+venv/faiss_index/
+!.gitignore
