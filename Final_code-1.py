@@ -20,7 +20,7 @@ from docx import Document as DocxDocument
 from docx.shared import Pt
 import pandas as pd
 
-# --- ReportLab Platypus (table PDF) ---
+
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -29,9 +29,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 # Requires: pip install openai==1.*
 from openai import OpenAI
 
-# -------------------------
-# Config
-# -------------------------
+
 # Prefer your large-context model in prod; keeping options in UI.
 DEFAULT_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4.1")
 MAX_OUTPUT_TOKENS = int(os.environ.get("OPENAI_MAX_OUTPUT_TOKENS", "12000"))
@@ -42,9 +40,7 @@ tesseract_path = shutil.which("tesseract")
 if tesseract_path:
     pytesseract.pytesseract.tesseract_cmd = tesseract_path
 
-# -------------------------
-# OpenAI helpers
-# -------------------------
+
 @st.cache_resource(show_spinner=False)
 def build_openai_client():
     api_key = st.secrets.get("OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY"))
@@ -96,9 +92,7 @@ def safe_json_loads(txt: str) -> Optional[dict]:
                 return None
         return None
 
-# -------------------------
-# PDF → Text extraction
-# -------------------------
+
 def pdf_bytes_to_images(pdf_bytes: bytes, dpi: int = 200) -> List[Image.Image]:
     return convert_from_bytes(pdf_bytes, dpi=dpi)
 
@@ -150,9 +144,7 @@ def extract_text_prefer_pdfplumber(pdf_bytes: bytes, dpi: int = 200):
         full.append(f"\n\n--- PAGE {p['page']} ---\n{p['text']}")
     return pages, "\n".join(full)
 
-# -------------------------
-# Prompts (ONE-SHOT, full contract)
-# -------------------------
+
 CAD_SYSTEM = """
 You are a senior contracts analyst.
 Output STRICT JSON ONLY (no markdown, no comments, no prose outside the JSON).
@@ -313,9 +305,7 @@ QUESTION:
 If unknown, reply exactly: "Not found in contract."
 """
 
-# -------------------------
-# Robust rendering helpers
-# -------------------------
+
 def _get(d, key, default=""):
     """Safe dict getter that never returns None."""
     if not isinstance(d, dict):
@@ -356,9 +346,7 @@ def _as_list_of_dicts(seq, primary_key):
             out.append({primary_key: it})
     return out
 
-# -------------------------
-# One-shot CAD generation
-# -------------------------
+
 def node_generate_cad_json_docx_pdf_openai(
     client: OpenAI,
     model: str,
@@ -647,9 +635,7 @@ def node_generate_cad_json_docx_pdf_openai(
 
     return str(data), str(json_path), str(docx_path), str(pdf_path)
 
-# -------------------------
-# Compliance (one-shot per rule) — UNCHANGED
-# -------------------------
+
 # def compliance_check_json_openai(
 #     client: OpenAI,
 #     model: str,
