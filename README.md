@@ -1,374 +1,299 @@
 
-### How to Run:
 
-1.Download pip install requrement.txt
+#### Contract CAD Generator – Automated Contract Analysis using LLMs
 
+This project automates the generation of **Contract Appreciation Documents (CAD)** from construction contract PDFs (200–300+ pages).
+Traditionally, preparing a CAD manually takes hours.
+This system produces it **automatically**, with:
 
-2.pip install openai
+* ✔ Structured CAD (JSON + DOCX + PDF)
+* ✔ Clause-level compliance check
+* ✔ Contract conflict detection
+* ✔ Contract-based Q&A
+* ✔ Support for both **digital** and **scanned** PDFs (OCR included)
 
+The project evolves through **three approaches**, with the final one (ChatGPT One-Shot) delivering the most accurate, stable, and production-ready results.
 
-3.streamlit run Final_code.py
+---
 
+###  How to Run
 
+```bash
+pip install -r requirements.txt
+pip install openai
+streamlit run Final_code.py
+```
 
+---
 
+# 📌 Project Overview
 
+Contract documents are long, repetitive, and difficult to understand.
+A Contract Appreciation Document (CAD) is a highly-important 20–25 page summary used in construction project management.
 
-### Overview
+This system automates:
 
-Contract documents are long, complex, and time-consuming to analyze manually. This project automates the creation of a Contract Appreciation Document (CAD) from any contract PDF—whether digital or scanned.
+* Extracting text from PDF (OCR + selectable text)
+* Generating a structured CAD using LLMs
+* Detecting conflicts (dates, payments, retention, LDs, etc.)
+* Running compliance checks (does the contract contain a specific clause?)
+* Asking direct Q&A questions over the contract
 
-The system extracts text, interprets contract clauses, generates structured outputs, and performs compliance and conflict detection, using three progressively improved approaches:
+Outputs are generated in:
 
-Approach-1: Retrieval-Augmented Generation (RAG)
+* **JSON**
+* **DOCX**
+* **PDF**
 
-Approach-2: Sliding-Window JSON Generation
+All with **page-level traceability**.
 
-Approach-3: One-Shot ChatGPT (Final & Best Approach)
+---
 
-This repository contains code to extract contract data, generate CAD outputs in JSON/DOCX/PDF, run compliance checks, detect contractual conflicts, and support contract-based Q&A.
+### System Architecture
 
+## 1️⃣ PDF Text Extraction
 
-Project Goals
+* **pdfplumber** for normal PDFs
+* **pytesseract OCR** for scanned pages
+* **pdf2image** for converting pages to images
+* Each page is annotated with
 
-Automate generation of fully structured CAD from PDFs
+  ```
+  --- PAGE X ---
+  ```
 
-Handle scanned PDFs using OCR and fallback extraction
+  to preserve traceability.
 
-Maintain page-level traceability
+Handles:
 
-Ensure accuracy, completeness, and consistency
+* Mixed scanned + digital PDFs
+* Missing text layers
+* Irregular formatting
 
-Provide contract-based Q&A, compliance validation, and conflict detection
+---
 
-Output in multiple usable formats: JSON, DOCX, PDF
+## 2️⃣ LLM Processing — Three Approaches
 
+The system was developed in three progressive, improving approaches:
 
-### 🧩 System Architecture
-🔍 1. PDF Text Extraction
+---
 
-pdfplumber for text-based PDFs
+### **Approach-1: RAG (Retrieval-Augmented Generation)**
 
-pytesseract OCR for scanned/blank pages
+**Pipeline**
 
-Adds --- PAGE X --- markers for source tracking
+* Chunk contract → build embeddings
+* Store in **ChromaDB**
+* Retrieve relevant chunks
+* Generate CAD section-wise using **FLAN-T5**
+* Combine into final CAD
 
-Handles mixed-format or partially scanned contracts
+**Pros**
 
-🤖 2. LLM Processing (Three Approaches)
-
-Each approach improves the system accuracy and consistency:
-
-
-Approach-1: RAG (Retrieval-Augmented Generation)
-
-Chunk the contract → generate sentence embeddings
-
-Store embeddings in Chroma vector DB
-
-Retrieve relevant chunks for each CAD section
-
-Generate answers using FLAN-T5
-
-Combine section-wise results into DOCX CAD
-
-Pros:
 ✔ Good for Q&A
-✔ Flexible and modular
+✔ Modular architecture
 
-Cons:
-✘ Lacks global context
-✘ CAD output inconsistent across sections
+**Cons**
 
+✘ CAD becomes inconsistent across sections
+✘ No global context
 
-### Approach-2: Sliding Window CAD JSON (Implemented in Code)
+---
 
-Main function:
+### **Approach-2: Sliding-Window JSON Generation**
 
-✔ CAD_JSON_PROMPT
+Sliding window across full contract (e.g., 2048 tokens per window).
 
-Strict JSON schema covering:
+Each window is passed through a **strict JSON CAD schema** containing:
 
-Salient features
+* Salient features
+* Submittals
+* Notice clauses
+* Payment
+* Risks
+* Claims & arbitration
+* And more…
 
-Submittals
+The system:
 
-Notices
+* Merges window outputs
+* Repairs malformed JSON
+* Locates sources using fuzzy text search
 
-Payment
+**Pros**
 
-Risks
+✔ More structured
+✔ Page-level traceability
 
-Claims & arbitration
+**Cons**
 
-✔ Process
+✘ Still window-based
+✘ Requires complex merging logic
 
-For each window:
+---
 
-Pass window text into the JSON prompt
+### **Approach-3 (Final): One-Shot ChatGPT**
 
-Parse output (with fallback raw→cleaner)
+This is the **best and final approach**, used in your code.
 
-Merge using:
+Key features:
 
-merge_json_objects()
+* Entire contract passed in **one single LLM call**
+* Uses `response_format={"type": "json_object"}` → **strict JSON output**
+* Automatic repair if JSON breaks
+* Directly generates:
 
-✔ Token numbers used
+  * JSON CAD
+  * DOCX (via python-docx)
+  * PDF (via reportlab)
+* No windowing or merging required
 
-Window = 2048 tokens
+**Benefits**
 
-Overlap = 256 tokens
+✔ Highest accuracy
+✔ Most complete
+✔ Most consistent CAD
+✔ Perfect for long legal documents
 
-Reserved for answers = 512 tokens
+---
 
-✔ Source Mapping
-
-Function:
-
-find_quote_sources()
-
-
-Searches exact or fuzzy quotes across pages.
-
-### Approach-3: One-Shot ChatGPT (Final System)
-Key ideas:
-
-Send entire contract in one single API call
-
-Force strict JSON output using response_format="json"
-
-No merging needed
-
-Most accurate + cleanest CAD structure
-
-Outputs in your code:
-
-JSON → via LLM
-
-DOCX → via python-docx
-
-PDF → via reportlab
-
-Benefits:
-
-Highest accuracy
-
-No context loss
-
-Very consistent structure
-
-Best readability for CAD
-
-
-### 5. CAD Generation Module (According to Code)
+## 3️⃣ CAD Generation
 
 Main function:
 
-✔ node_generate_cad_json_docx_pdf()
-Performs:
+```
+node_generate_cad_json_docx_pdf()
+```
 
-Runs JSON generation window-wise
+Creates:
 
-Merges all JSON pieces
+* Full CAD (JSON)
+* Fully formatted DOCX:
 
-DOCX creation:
+  * Headings
+  * Tables (salient features, submittals, notices, payment terms)
+* One-page PDF summary:
 
-headings
+  * Key contract details
+  * Most important clauses
 
-tables
+---
 
-salient features
+## 4️⃣ Compliance Check
 
-PDF creation:
+Each rule returns:
 
-one-page summary
-
-project name
-
-employer
-
-contractor
-
-scope overview (wrapped text)
-
-### 6. Compliance Check (According to Code)
-
-Main LLM prompt:
-
-✔ COMPLIANCE_JSON_PROMPT
-
-Produces for each rule:
-
+```json
 {
   "rule": "...",
-  "present": true/false,
+  "present": true,
   "summary": "...",
   "quote": "...",
   "sources": ["page X"],
-  "confidence": 0.90
+  "confidence": 0.91
 }
+```
 
-Engine:
+Used for:
 
-Splits contract into token windows
+* Checking if a contract contains mandatory clauses
+* Ensuring completeness
+* Legal compliance review
 
-Searches per window
+---
 
-Aggregates best results
+## 5️⃣ Conflict Detection (5 Implemented Rules)
 
-Main function:
+Functions implemented:
 
-✔ compliance_check_json()
-### 7. Conflict Detection Module (5 Implemented Rules)
+* **Commencement vs Site Possession mismatch**
+* **Payment term mismatch**
+* **Retention % mismatch**
+* **Defect liability / warranty mismatch**
+* **Arbitration vs court conflict**
 
-Implemented functions:
+Each conflict is mapped to:
 
-✔ check_commencement_vs_site_possession()
+* category
+* resolution_hint
+* evidence with page numbers
 
-Date mismatch using regex + dateparser
+---
 
-Conflict if possession > commencement
+## 6️⃣ Contract Q&A
 
-✔ check_payment_term_mismatch()
+Two modes:
 
-Regex:
+* Full-contract Q&A
+* Sliding-window fallback
 
-pay within (\d+) days
+Allows users to ask questions like:
 
+> *“What is the payment schedule?”*
+> *“Is there an arbitration clause?”*
 
-Flag when different values appear
+---
 
-✔ check_retention_mismatch()
+## 7️⃣ Streamlit UI
 
-Regex captures retention %
+Features:
 
-Detects inconsistent values
+* Upload PDF
+* View extracted pages
+* Ask contract Q&A
+* Generate CAD
+* Download JSON / DOCX / PDF
+* Run compliance checks
+* Run conflict detection
+* Debug views
 
-✔ check_defect_liability_mismatch()
+---
 
-Matches warranty or DLP periods
+# 🛠 Tech Stack
 
-Converts “years” → months
+### Extraction
 
-✔ check_arbitration_vs_court_conflict()
+* pdfplumber
+* pdf2image
+* pytesseract
 
-If both "arbitration" and "court" appear → conflict
+### LLM / Processing
 
-All conflicts passed through:
+* OpenAI GPT-4.1 / GPT-5.1
+* HuggingFace (FLAN-T5 for early approaches)
+* LangChain
 
-✔ map_conflict_to_practical_category()
+### Output
 
-Adds:
+* python-docx
+* reportlab
 
-category
+### UI
 
-resolution_hint
+* Streamlit
 
-Combined via:
-✔ run_conflict_detection()
-## 8. Contract Q&A (LangChain)
+---
 
-Function:
+### Limitations (Realistic & Updated)
 
-✔ ask_direct_langchain()
+* OCR introduces noise in low-quality scanned PDFs
+* Very long contracts may still hit token limits
+* Some edge-case conflicts not yet implemented
+* Table/figure extraction is not automated
+* Handling completely irregular formatting is difficult
+* **Privacy concern:** legal contracts are confidential
 
-Works in two modes:
+  * **Solution:** use *OpenAI Enterprise* / self-hosted embeddings for private deployment
 
-concatenate → full contract
+---
 
-sliding → window-wise Q&A
+### Future Enhancements
 
-Prompts used:
+* Add 10+ more conflict detection rules
+* Improve table/figure extraction using layout models
+* Automatic clause linking and cross-referencing
+* Multilingual support for global contracts
+* Fully interactive UI with summary visualizations
+* Fine-tuned LLM optimized for contract domain
 
-CONTRACT_Q_PROMPT
 
-WINDOW_Q_PROMPT
-
-## 9. Streamlit UI Workflow (As per your app.py)
-
-UI features:
-
-Upload PDF
-
-View extracted pages
-
-Chat with LLM
-
-Generate CAD
-
-Download JSON/DOCX/PDF
-
-Run compliance check
-
-Run conflict detection
-
-Debug window display options
-
-Session state keys used:
-
-pages
-
-raw_text
-
-chunks
-
-trans_pipe
-
-tokenizer
-
-llm_wrapper
-
-conversation
-
-cad_json / cad_docx / cad_pdf
-
-## 10. Tech Stack
-Extraction
-
-pdfplumber
-
-pytesseract
-
-pdf2image
-
-LLM / Processing
-
-HuggingFace Transformers
-
-LangChain
-
-FLAN-T5-large
-
-Sentencepiece tokenizer
-
-Output
-
-python-docx
-
-reportlab
-
-UI
-
-Streamlit
-
-## 🧾 11. Limitations
-
-OCR noise from scanned pages reduces accuracy
-
-Some conflict rules still require expansion
-
-Very long contracts may exceed token limits
-
-Table extraction is not automated
-
-## 🔮 12. Future Enhancements
-
-Add remaining 11+ conflict rules
-
-Table and figure extraction using layout models
-
-Cross-contract comparison
-
-Risk matrix generation
-
-Fine-tuned LLM for contract domain
