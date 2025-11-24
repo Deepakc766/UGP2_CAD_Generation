@@ -28,7 +28,7 @@ Provide contract-based Q&A, compliance validation, and conflict detection
 Output in multiple usable formats: JSON, DOCX, PDF
 
 
-🧩 System Architecture
+### 🧩 System Architecture
 🔍 1. PDF Text Extraction
 
 pdfplumber for text-based PDFs
@@ -144,7 +144,7 @@ Very consistent structure
 Best readability for CAD
 
 
-📘 5. CAD Generation Module (According to Code)
+### 5. CAD Generation Module (According to Code)
 
 Main function:
 
@@ -175,7 +175,7 @@ contractor
 
 scope overview (wrapped text)
 
-## 🛡️ 6. Compliance Check (According to Code)
+### 6. Compliance Check (According to Code)
 
 Main LLM prompt:
 
@@ -203,7 +203,7 @@ Aggregates best results
 Main function:
 
 ✔ compliance_check_json()
-## ⚠️ 7. Conflict Detection Module (5 Implemented Rules)
+### 7. Conflict Detection Module (5 Implemented Rules)
 
 Implemented functions:
 
@@ -268,7 +268,7 @@ CONTRACT_Q_PROMPT
 
 WINDOW_Q_PROMPT
 
-## 🖥️ 9. Streamlit UI Workflow (As per your app.py)
+## 9. Streamlit UI Workflow (As per your app.py)
 
 UI features:
 
