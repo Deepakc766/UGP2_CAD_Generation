@@ -3,7 +3,9 @@
 
 1.Download pip install requrement.txt
 
+
 2.pip install openai
+
 
 3.streamlit run Final_code.py
 
@@ -11,7 +13,8 @@
 
 
 
-Overview
+
+### Overview
 
 Contract documents are long, complex, and time-consuming to analyze manually. This project automates the creation of a Contract Appreciation Document (CAD) from any contract PDF—whether digital or scanned.
 
